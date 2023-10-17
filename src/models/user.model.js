@@ -1,4 +1,4 @@
-export const useSchema = (sequelize, DataTypes) => {
+export const userSchema = (sequelize, DataTypes) => {
   const User = sequelize.define("users", {
     id: {
       allowNull: false,
@@ -6,11 +6,11 @@ export const useSchema = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.INTEGER,
     },
-    firstName: {
+    first_name: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    lastName: {
+    last_name: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -22,15 +22,24 @@ export const useSchema = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    createdAt: {
-      allowNull: false,
-      type: DataTypes.DATE,
+    refresh_token: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
-    updatedAt: {
-      allowNull: false,
-      type: DataTypes.DATE,
+    avatar: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "user",
+    },
+    account_type: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: "local",
     },
   });
-
   return User;
 };

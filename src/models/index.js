@@ -1,13 +1,25 @@
 import { Sequelize, DataTypes } from "sequelize";
-import { useSchema } from "./user.model.js";
-const sequelize = new Sequelize("musicappdb", "root", "khai2003", {
-  host: "localhost",
-  dialect: "mysql",
-  port: 3306,
-  logging: false,
-  operatorsAliases: false,
-});
+import { userSchema } from "./user.model.js";
+import { songSchema } from "./song.model.js";
+import { playlistSchema } from "./playlist.model.js";
+import { notificationSchema } from "./notification.modal.js";
+import { userFavoriteSongsSongSchema } from "./user_favorite_songs_song.js";
 
+import dotenv from "dotenv";
+dotenv.config(); // su dung bien env trong file .env
+
+const sequelize = new Sequelize(
+  process.env.DATABASE_NAME,
+  process.env.DATABASE_USER,
+  process.env.DATABASE_PASSWORD,
+  {
+    host: process.env.DATABASE_HOST,
+    dialect: process.env.DATABASE_DIALECT,
+    port: process.env.DATABASE_PORT,
+    logging: false,
+    operatorsAliases: false,
+  }
+);
 sequelize
   .authenticate()
   .then(() => {
@@ -22,7 +34,11 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.User = useSchema(sequelize, DataTypes);
+db.User = userSchema(sequelize, DataTypes);
+db.Song = songSchema(sequelize, DataTypes);
+db.Playlist = playlistSchema(sequelize, DataTypes);
+db.Notification = notificationSchema(sequelize, DataTypes);
+db.UserFavoriteSongsSong = userFavoriteSongsSongSchema(sequelize);
 
 const createOneToManyRelation = function (manyModel, oneModel, foreignKey, as) {
   oneModel.hasMany(manyModel, {
@@ -48,11 +64,40 @@ const createOneToOneRelation = function (model1, model2, foreignKey, as) {
   });
 };
 
-const createManyToManyRelation = function (model1, model2, modelRelation) {
-  model1.belongsToMany(model2, { through: modelRelation });
-
-  model2.belongsToMany(model1, { through: modelRelation });
+const createManyToManyRelation = function (
+  model1,
+  model2,
+  modelRelation,
+  as1,
+  as2
+) {
+  model1.belongsToMany(model2, { through: modelRelation, as: as1 });
+  model2.belongsToMany(model1, { through: modelRelation, as: as2 });
 };
+
+createOneToManyRelation(db.Song, db.User, "userId", "user_songs");
+createOneToManyRelation(db.Playlist, db.User, "userId", "user_playlists");
+createOneToManyRelation(
+  db.Notification,
+  db.User,
+  "userId",
+  "user_notifications"
+);
+
+createManyToManyRelation(
+  db.Song,
+  db.User,
+  "user_favorite_songs_song",
+  "songFavorite_user",
+  "user_songFavorite"
+);
+createManyToManyRelation(
+  db.Song,
+  db.Playlist,
+  "playlist_songs_song",
+  "playlists",
+  "songs"
+);
 
 db.sequelize.sync({ alter: true }).then(() => {
   console.log("re-sync database done.");
