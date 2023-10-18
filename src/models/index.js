@@ -4,6 +4,7 @@ import { songSchema } from "./song.model.js";
 import { playlistSchema } from "./playlist.model.js";
 import { notificationSchema } from "./notification.modal.js";
 import { userFavoriteSongsSongSchema } from "./user_favorite_songs_song.js";
+import { playlistSongsSongSchema } from "./playlist_songs_song.js";
 
 import dotenv from "dotenv";
 dotenv.config(); // su dung bien env trong file .env
@@ -39,6 +40,7 @@ db.Song = songSchema(sequelize, DataTypes);
 db.Playlist = playlistSchema(sequelize, DataTypes);
 db.Notification = notificationSchema(sequelize, DataTypes);
 db.UserFavoriteSongsSong = userFavoriteSongsSongSchema(sequelize);
+db.PlaylistSongsSong = playlistSongsSongSchema(sequelize);
 
 const createOneToManyRelation = function (manyModel, oneModel, foreignKey, as) {
   oneModel.hasMany(manyModel, {
@@ -95,8 +97,8 @@ createManyToManyRelation(
   db.Song,
   db.Playlist,
   "playlist_songs_song",
-  "playlists",
-  "songs"
+  "song_playlists",
+  "playlist_songs"
 );
 
 db.sequelize.sync({ alter: true }).then(() => {

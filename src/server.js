@@ -114,7 +114,7 @@ app.use("/api", appRoute);
 
 app.use((error, req, res, next) => {
   if (error.res) {
-    return res.status(error.statusCode).json(error.res);
+    return res.status(error.res.statusCode).json(error.res);
   }
   const statusCode = error.statusCode || 500;
   const message = error.message || "Internal server error";
