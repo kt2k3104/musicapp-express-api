@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql
+    container_name: musicappdb
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+    volumes:
+      - mysql-db-data:/var/lib/mysql
+    networks:
+      - express-music-app
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: musicappAPI
+    ports:
+      - ${EXPOSE_PORT}:${PORT}
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - express-music-app
+    depends_on:
+      - db
+volumes:
+  mysql-db-data:
+networks:
+  express-music-app:

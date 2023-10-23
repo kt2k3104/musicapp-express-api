@@ -11,11 +11,15 @@ import { v4 } from "uuid";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 import { Strategy as GGStrategy } from "passport-google-oauth20";
 import passport from "passport";
+import { Server } from "socket.io";
+import { createServer } from "http";
+import jwtHelper from "./helpers/jwt.helper.js";
 
 const __dirname = path.resolve();
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const app = express();
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 9001;
 
 const fileStorage = multer.diskStorage({
@@ -130,7 +134,37 @@ app.use("*", (req, res, next) => {
   });
 });
 
+// connect websocket
+
+global._io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+  },
+  connectionStateRecovery: {},
+});
+global._io.on("connection", async (socket) => {
+  const authHeader = socket.handshake.headers.authorization;
+  if (authHeader && authHeader.split(" ")[1] !== "null") {
+    try {
+      const payload = await jwtHelper.verifyToken(
+        authHeader.split(" ")[1],
+        process.env.JWT_SECRET_KEY
+      );
+      socket.join(payload.email);
+      console.log("created room for " + payload.email);
+    } catch (error) {
+      console.log(error);
+      socket.disconnect(true);
+    }
+  } else {
+    socket.disconnect(true);
+  }
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
+});
+
 // start server
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log("server started at http://localhost:" + PORT);
 });

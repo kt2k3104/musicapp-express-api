@@ -4,6 +4,7 @@ import express from "express";
 import userRoute from "./user.route.js";
 import songRoute from "./song.route.js";
 import playlistRoute from "./playlist.route.js";
+import notiRoute from "./noti.route.js";
 
 const appRoute = express();
 
@@ -14,7 +15,7 @@ appRoute.use("/auth", authRoute);
 appRoute.use("/users", userRoute);
 
 // /api/notifications
-appRoute.use("/notifications", userRoute);
+appRoute.use("/notifications", notiRoute);
 
 // /api/songs
 appRoute.use("/songs", songRoute);

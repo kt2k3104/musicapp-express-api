@@ -80,7 +80,7 @@ export const authService = {
       if (!error.statusCode) {
         error.statusCode = 500;
       }
-      return error;
+      return next(error);
     }
   },
   refreshToken: async (body) => {

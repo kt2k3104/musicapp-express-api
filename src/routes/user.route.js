@@ -11,7 +11,6 @@ const {
   deleteUser,
   uploadAvatar,
   getCurrentUser,
-  getNotifications,
 } = userController;
 
 // /api/users
@@ -31,8 +30,5 @@ userRoute.post("/upload-avt", isAuth, uploadAvatar);
 
 // /api/users/curr/info
 userRoute.get("/curr/info", isAuth, getCurrentUser);
-
-// /api/notifications
-userRoute.get("/notifications", isAuth, getNotifications);
 
 export default userRoute;

@@ -5,9 +5,9 @@ import jwtHelper from "../helpers/jwt.helper.js";
 const isAuth = async (req, res, next) => {
   const accessTokenSecret = process.env.JWT_SECRET_KEY;
   const authHeader = req.headers["authorization"];
-  const tokenFromClient = authHeader.split(" ")[1];
 
-  if (tokenFromClient) {
+  if (authHeader) {
+    const tokenFromClient = authHeader.split(" ")[1];
     try {
       const decoded = await jwtHelper.verifyToken(
         tokenFromClient,
@@ -29,8 +29,9 @@ const isAuth = async (req, res, next) => {
       next(err);
     }
   } else {
-    return res.status(403).send({
-      message: "No token provided.",
+    return res.status(419).send({
+      statusCode: 419,
+      message: "token expired",
     });
   }
 };

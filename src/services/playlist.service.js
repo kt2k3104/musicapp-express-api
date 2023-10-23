@@ -35,7 +35,11 @@ export const playlistService = {
 
   createPlaylist: async (body, userId) => {
     const data = { ...body, userId };
-    return await db.Playlist.create(data);
+    const playlist = await db.Playlist.create(data);
+    return await db.Playlist.findOne({
+      where: { id: playlist.id },
+      include: [{ model: db.User, as: "user_playlists" }],
+    });
   },
 
   updatePlaylist: async (id, data) => {
@@ -53,12 +57,27 @@ export const playlistService = {
     if (data !== null) {
       return { message: "Song already exists in playlist" };
     }
-    return await db.PlaylistSongsSong.create({ playlistId, songId });
+    await db.PlaylistSongsSong.create({ playlistId, songId });
+    const playlist = await db.Playlist.findOne({
+      where: { id: playlistId },
+      include: [{ model: db.Song, as: "playlist_songs" }],
+    });
+    return renameKeys(playlist.dataValues, {
+      playlist_songs: "songs",
+    });
   },
 
   removeSongFromPlaylist: async (playlistId, songId) => {
-    return await db.PlaylistSongsSong.destroy({
+    await db.PlaylistSongsSong.destroy({
       where: { playlistId, songId },
+    });
+    const playlist = await db.Playlist.findOne({
+      where: { id: playlistId },
+      include: [{ model: db.Song, as: "playlist_songs" }],
+    });
+    console.log(playlist);
+    return renameKeys(playlist.dataValues, {
+      playlist_songs: "songs",
     });
   },
 };

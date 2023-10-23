@@ -1,6 +1,7 @@
 import { Op } from "sequelize";
 import uploadHelper from "../helpers/upload.helper.js";
 import db from "../models/index.js";
+import { renameKeys } from "../helpers/renameKeys.helper.js";
 
 export const songService = {
   getAllSong: async () => {
@@ -59,7 +60,7 @@ export const songService = {
     }
     const idArtwork =
       "music-app-expressjs/images" +
-      song.avatar.split("music-app-expressjs/images")[1].split(".")[0];
+      song.artwork.split("music-app-expressjs/images")[1].split(".")[0];
     uploadHelper.deleteImage(idArtwork, next);
     const idSongUrl =
       "music-app-expressjs/audios" +
@@ -72,16 +73,84 @@ export const songService = {
     const favorite = await db.UserFavoriteSongsSong.findOne({
       where: { userId, songId },
     });
-
+    const user = await db.User.findOne({
+      where: { id: userId },
+      attributes: ["first_name"],
+    });
+    const song = await db.Song.findOne({
+      where: { id: songId },
+      attributes: ["name", "userId"],
+      include: [
+        {
+          model: db.User,
+          as: "user_songs",
+          attributes: ["email"],
+        },
+      ],
+    });
     if (!favorite) {
-      return await db.UserFavoriteSongsSong.create({
+      const noti = await db.Notification.create({
+        userId: song.userId,
+        content: `${user.first_name} đã thêm bài ${song.name} vào danh sách yêu thích`,
+      });
+      _io
+        .to(song.user_songs.email)
+        .emit("like", renameKeys(noti.dataValues, { createdAt: "created_at" }));
+      await db.UserFavoriteSongsSong.create({
         userId,
         songId,
       });
+      const data = await db.User.findOne({
+        where: { id: userId },
+        include: [
+          {
+            model: db.Song,
+            as: "user_songFavorite",
+            attributes: { exclude: ["userId"] },
+          },
+        ],
+      });
+      return {
+        success: true,
+        result: {
+          favorite: true,
+          response: renameKeys(data.dataValues, {
+            user_songFavorite: "favoriteSongs",
+          }),
+        },
+      };
     } else {
-      return await db.UserFavoriteSongsSong.destroy({
+      await db.Notification.destroy({
+        where: {
+          userId: song.userId,
+          content: `${user.first_name} đã thêm bài ${song.name} vào danh sách yêu thích`,
+        },
+      });
+      _io
+        .to(song.user_songs.email)
+        .emit("unlike", `${user.first_name} đã bỏ thích bài ${song.name}`);
+      await db.UserFavoriteSongsSong.destroy({
         where: { userId, songId },
       });
+      const data = await db.User.findOne({
+        where: { id: userId },
+        include: [
+          {
+            model: db.Song,
+            as: "user_songFavorite",
+            attributes: { exclude: ["userId"] },
+          },
+        ],
+      });
+      return {
+        success: true,
+        result: {
+          favorite: true,
+          response: renameKeys(data.dataValues, {
+            user_songFavorite: "favoriteSongs",
+          }),
+        },
+      };
     }
   },
 

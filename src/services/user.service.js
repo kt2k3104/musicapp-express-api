@@ -119,12 +119,14 @@ export const userService = {
 
     return newUser;
   },
-  getNotifications: async () => {
-    const data = await db.User.findOne({
+  getNotifications: async (userId) => {
+    const data = await db.Notification.findAll({
       where: {
-        id: id,
+        userId,
       },
     });
-    return data;
+    return data.map((item) =>
+      renameKeys(item.dataValues, { createdAt: "created_at" })
+    );
   },
 };
