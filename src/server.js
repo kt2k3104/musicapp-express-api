@@ -104,6 +104,16 @@ const googleStrategy = new GGStrategy(
         });
         return done(null, { id: newUser.id, email: newUser.email });
       }
+      if (user.avatar !== userData.avatar) {
+        await db.User.update(
+          { avatar: userData.avatar },
+          {
+            where: {
+              email: userData.email,
+            },
+          }
+        );
+      }
 
       return done(null, { id: user.id, email: user.email });
     } catch (error) {

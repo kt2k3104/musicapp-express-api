@@ -53,18 +53,9 @@ export const authController = {
       process.env.JWT_REFRESH_TOKEN_EXPIRES
     );
 
-    // tao html
-
-    res.header("Content-Security-Policy", "script-src");
-
-    res.sendFile("redirect.html", {
-      root: "./",
-    });
-
-    // res.json({
-    //   access_token,
-    //   refresh_token,
-    // });
+    res.redirect(
+      `https://zingmp3-khaitd.vercel.app/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
+    );
   },
   refreshToken: async (req, res, next) => {
     try {

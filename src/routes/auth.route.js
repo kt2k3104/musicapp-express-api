@@ -16,7 +16,11 @@ authRoute.post("/register", registerValidation, register);
 // /api/auth/login
 authRoute.post("/login", loginValidation, login);
 
-// /api/auth/login
+// /api/auth/refresh_token
+authRoute.post("/refresh-token", refreshTokenValidation, refreshToken);
+export default authRoute;
+
+// /api/auth/google/login
 authRoute.get(
   "/google/login",
   passport.authenticate("google", { scope: ["profile", "email"] }),
@@ -32,13 +36,3 @@ authRoute.get(
   }),
   googleLoginRedirect
 );
-
-authRoute.get("/test", (req, res) => {
-  res.json({
-    message: "login with google success",
-  });
-});
-
-// /api/auth/refresh_token
-authRoute.post("/refresh-token", refreshTokenValidation, refreshToken);
-export default authRoute;
