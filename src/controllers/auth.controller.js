@@ -39,23 +39,23 @@ export const authController = {
     });
   },
   googleLoginRedirect: async (req, res, next) => {
-    console.log(req.user);
-
-    // create token
-
-    const { access_token, refresh_token } = jwtHelper.generateToken(
-      {
-        id: req.user.id,
-        email: req.user.email,
-      },
-      process.env.JWT_SECRET_KEY,
-      process.env.JWT_ACCESS_TOKEN_EXPIRES,
-      process.env.JWT_REFRESH_TOKEN_EXPIRES
-    );
-
-    res.redirect(
-      `https://zingmp3-khaitd.vercel.app/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
-    );
+    try {
+      const { access_token, refresh_token } = jwtHelper.generateToken(
+        {
+          id: req.user.id,
+          email: req.user.email,
+        },
+        process.env.JWT_SECRET_KEY,
+        process.env.JWT_ACCESS_TOKEN_EXPIRES,
+        process.env.JWT_REFRESH_TOKEN_EXPIRES
+      );
+      await authService.googleLoginRedirect(req.user.id, refresh_token);
+      res.redirect(
+        `https://zingmp3-khaitd.vercel.app/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
+      );
+    } catch (error) {
+      next(error);
+    }
   },
   refreshToken: async (req, res, next) => {
     try {

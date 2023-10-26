@@ -83,6 +83,23 @@ export const authService = {
       return next(error);
     }
   },
+  googleLoginRedirect: async (id, refresh_token) => {
+    const user = await db.User.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      const error = new Error("User not found.");
+      error.statusCode = 404;
+      return error;
+    }
+
+    await user.update({
+      refresh_token: refresh_token,
+    });
+  },
   refreshToken: async (body) => {
     const user = await db.User.findOne({
       where: {
@@ -90,7 +107,7 @@ export const authService = {
       },
     });
     if (!user.refresh_token) {
-      const error = new Error("refresh token ");
+      const error = new Error("refresh token not found.");
       error.statusCode = 401;
       return error;
     }

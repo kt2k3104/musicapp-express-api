@@ -2,7 +2,6 @@ import express from "express";
 import { authController } from "../controllers/auth.controller.js";
 import { Validation } from "../validations/index.js";
 import passport from "passport";
-import appRoute from "./index.js";
 const authRoute = express.Router();
 
 const { login, refreshToken, register, googleLogin, googleLoginRedirect } =
