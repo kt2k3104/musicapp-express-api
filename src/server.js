@@ -14,6 +14,7 @@ import passport from "passport";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import jwtHelper from "./helpers/jwt.helper.js";
+import session from "express-session";
 
 const __dirname = path.resolve();
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
@@ -51,6 +52,13 @@ app.use(
     { name: "song", maxCount: 1 },
   ])
 );
+app.use(
+  session({
+    secret: "secretcucmanh",
+    cookie: { maxAge: 60000 },
+  })
+);
+app.use(passport.session());
 
 // passport
 const jwtPassportOptions = {

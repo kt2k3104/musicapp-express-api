@@ -31,7 +31,7 @@ authRoute.get(
   "/google/login/redirect",
   passport.authenticate("google", {
     failureRedirect: ["/songs"],
-    session: false,
+    // session: false,
   }),
   googleLoginRedirect
 );

@@ -5,6 +5,7 @@ import uploadHelper from "../helpers/upload.helper.js";
 export const songController = {
   getAllSong: async (req, res, next) => {
     try {
+      console.log("haha: ", req.session.name);
       const data = await songService.getAllSong();
       res.status(200).json({
         success: true,

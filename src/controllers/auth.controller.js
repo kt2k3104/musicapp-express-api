@@ -34,6 +34,10 @@ export const authController = {
     }
   },
   googleLogin: async (req, res, next) => {
+    req.session.name = {
+      name: "khaitd",
+      age: "20",
+    };
     res.status(200).json({
       message: "authenticate",
     });
@@ -50,9 +54,10 @@ export const authController = {
         process.env.JWT_REFRESH_TOKEN_EXPIRES
       );
       await authService.googleLoginRedirect(req.user.id, refresh_token);
-      res.redirect(
-        `https://zingmp3-khaitd.vercel.app/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
-      );
+      // res.redirect(
+      //   `https://zingmp3-khaitd.vercel.app/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
+      // );
+      res.redirect(`http://localhost:3000`);
     } catch (error) {
       next(error);
     }
