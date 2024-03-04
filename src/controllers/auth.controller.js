@@ -57,11 +57,49 @@ export const authController = {
       // res.redirect(
       //   `https://zingmp3-khaitd.vercel.app/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
       // );
-      res.redirect(`http://localhost:3000`);
+      res.redirect(
+        `http://localhost:3000/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
+      );
+      // res.redirect(`http://localhost:3000`);
+      // res.redirect("/");
     } catch (error) {
       next(error);
     }
   },
+  facebookLogin: async (req, res, next) => {
+    req.session.name = {
+      name: "khaitd",
+      age: "20",
+    };
+    res.status(200).json({
+      message: "authenticate",
+    });
+  },
+  facebookLoginRedirect: async (req, res, next) => {
+    try {
+      const { access_token, refresh_token } = jwtHelper.generateToken(
+        {
+          id: req.user.id,
+          email: req.user.email,
+        },
+        process.env.JWT_SECRET_KEY,
+        process.env.JWT_ACCESS_TOKEN_EXPIRES,
+        process.env.JWT_REFRESH_TOKEN_EXPIRES
+      );
+      await authService.facebookLoginRedirect(req.user.id, refresh_token);
+      // res.redirect(
+      //   `https://zingmp3-khaitd.vercel.app/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
+      // );
+      res.redirect(
+        `http://localhost:3000/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
+      );
+      // res.redirect(`http://localhost:3000`);
+      // res.redirect("/");
+    } catch (error) {
+      next(error);
+    }
+  },
+
   refreshToken: async (req, res, next) => {
     try {
       const data = await authService.refreshToken(req.body);

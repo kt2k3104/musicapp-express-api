@@ -10,6 +10,7 @@ import multer from "multer";
 import { v4 } from "uuid";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 import { Strategy as GGStrategy } from "passport-google-oauth20";
+import { Strategy as FacebookStrategy } from "passport-facebook";
 import passport from "passport";
 import { Server } from "socket.io";
 import { createServer } from "http";
@@ -102,7 +103,7 @@ const googleStrategy = new GGStrategy(
       });
 
       if (!user) {
-        const newUser = await db.User.create({
+        let newUser = await db.User.create({
           first_name: profile.name.givenName,
           last_name: profile.name.familyName,
           email: profile.emails[0].value,
@@ -110,6 +111,7 @@ const googleStrategy = new GGStrategy(
           avatar: profile.photos[0].value,
           account_type: "google",
         });
+        newUser = newUser.get({ plain: true });
         return done(null, { id: newUser.id, email: newUser.email });
       }
       if (user.avatar !== userData.avatar) {
@@ -130,6 +132,59 @@ const googleStrategy = new GGStrategy(
   }
 );
 passport.use(googleStrategy);
+
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: process.env.FACEBOOK_APP_ID,
+      clientSecret: process.env.FACEBOOK_APP_SECRET,
+      callbackURL: process.env.FACEBOOK_CALLBACK_URL,
+      profileFields: ["id", "name", "photos", "displayName", "email"],
+    },
+    async function (accessToken, refreshToken, profile, cb) {
+      try {
+        const userData = {
+          email: `${profile.id}@gmail.com`,
+          name: profile.displayName,
+          avatar: profile.photos[0].value,
+        };
+
+        const user = await db.User.findOne({
+          where: {
+            email: userData.email,
+          },
+        });
+
+        if (!user) {
+          let newUser = await db.User.create({
+            first_name: profile.name.givenName,
+            last_name: profile.name.familyName,
+            email: `${profile.id}@gmail.com`,
+            password: "facebook",
+            avatar: profile.photos[0].value,
+            account_type: "facebook",
+          });
+          newUser = newUser.get({ plain: true });
+          return cb(null, { id: newUser.id, email: newUser.email });
+        }
+        if (user.avatar !== userData.avatar) {
+          await db.User.update(
+            { avatar: userData.avatar },
+            {
+              where: {
+                email: userData.email,
+              },
+            }
+          );
+        }
+
+        return cb(null, { id: user.id, email: user.email });
+      } catch (error) {
+        return cb(error, false);
+      }
+    }
+  )
+);
 
 // router
 app.use("/api", appRoute);

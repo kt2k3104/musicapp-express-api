@@ -4,8 +4,15 @@ import { Validation } from "../validations/index.js";
 import passport from "passport";
 const authRoute = express.Router();
 
-const { login, refreshToken, register, googleLogin, googleLoginRedirect } =
-  authController;
+const {
+  login,
+  refreshToken,
+  register,
+  googleLogin,
+  googleLoginRedirect,
+  facebookLogin,
+  facebookLoginRedirect,
+} = authController;
 const { loginValidation, refreshTokenValidation, registerValidation } =
   Validation.authValidation;
 
@@ -31,7 +38,24 @@ authRoute.get(
   "/google/login/redirect",
   passport.authenticate("google", {
     failureRedirect: ["/songs"],
-    // session: false,
+    session: false,
   }),
   googleLoginRedirect
+);
+
+// /api/auth/facebook/login
+authRoute.get(
+  "/facebook/login",
+  passport.authenticate("facebook"),
+  facebookLogin
+);
+
+// /api/auth/facebook/login/redirect
+authRoute.get(
+  "/facebook/login/redirect",
+  passport.authenticate("facebook", {
+    failureRedirect: ["/songs"],
+    session: false,
+  }),
+  facebookLoginRedirect
 );

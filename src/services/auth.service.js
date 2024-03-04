@@ -100,6 +100,23 @@ export const authService = {
       refresh_token: refresh_token,
     });
   },
+  facebookLoginRedirect: async (id, refresh_token) => {
+    const user = await db.User.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      const error = new Error("User not found.");
+      error.statusCode = 404;
+      return error;
+    }
+
+    await user.update({
+      refresh_token: refresh_token,
+    });
+  },
   refreshToken: async (body) => {
     const user = await db.User.findOne({
       where: {
