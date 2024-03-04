@@ -54,14 +54,9 @@ export const authController = {
         process.env.JWT_REFRESH_TOKEN_EXPIRES
       );
       await authService.googleLoginRedirect(req.user.id, refresh_token);
-      // res.redirect(
-      //   `https://zingmp3-khaitd.vercel.app/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
-      // );
       res.redirect(
-        `http://localhost:3000/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
+        `https://zingmp3-khaitd.vercel.app/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
       );
-      // res.redirect(`http://localhost:3000`);
-      // res.redirect("/");
     } catch (error) {
       next(error);
     }
@@ -87,14 +82,9 @@ export const authController = {
         process.env.JWT_REFRESH_TOKEN_EXPIRES
       );
       await authService.facebookLoginRedirect(req.user.id, refresh_token);
-      // res.redirect(
-      //   `https://zingmp3-khaitd.vercel.app/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
-      // );
       res.redirect(
-        `http://localhost:3000/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
+        `https://zingmp3-khaitd.vercel.app/oauth/redirect?access_token=${access_token}&refresh_token=${refresh_token}`
       );
-      // res.redirect(`http://localhost:3000`);
-      // res.redirect("/");
     } catch (error) {
       next(error);
     }
