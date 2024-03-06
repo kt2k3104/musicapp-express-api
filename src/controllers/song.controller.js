@@ -55,7 +55,7 @@ export const songController = {
 
   editSong: async (req, res, next) => {
     try {
-      const data = await songService.updateSong(req.params.id, req.body);
+      const data = await songService.editSong(req.params.id, req.body);
       res.status(200).json({
         success: true,
         message: "Update song success",
